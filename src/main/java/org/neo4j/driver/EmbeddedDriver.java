@@ -12,25 +12,6 @@ public class EmbeddedDriver implements Driver
     private final GraphDatabaseService db;
     private final ExecutionEngine engine;
 
-    public static void main( String[] args )
-    {
-        // TODO
-        GraphDatabaseService db = null;
-        Driver driver = new EmbeddedDriver( db );
-        try (Transaction tx = driver.newTransaction())
-        {
-            try (Result r = tx.execute( "" ))
-            {
-                while ( r.hasNext() )
-                {
-                    r.next();
-                }
-            }
-            tx.success();
-        }
-
-    }
-
     public EmbeddedDriver( GraphDatabaseService db )
     {
         this.db = db;
@@ -61,6 +42,12 @@ public class EmbeddedDriver implements Driver
         }
 
         @Override
+        public Result execute( String query, Map<String, Object> params )
+        {
+            return new EmbeddedResult( engine.execute( query, params ) );
+        }
+
+        @Override
         public void success()
         {
             innerTx.success();
@@ -69,7 +56,6 @@ public class EmbeddedDriver implements Driver
         @Override
         public void close()
         {
-            // TODO like that
             innerTx.close();
         }
     }

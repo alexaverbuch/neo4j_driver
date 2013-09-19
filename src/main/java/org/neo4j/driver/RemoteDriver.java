@@ -56,6 +56,29 @@ class RemoteDriver implements Driver
         }
 
         @Override
+        public Result execute( String query, Map<String, Object> params )
+        {
+            if ( txId == -1 )
+            {
+                HTTP.Response response = http.POST( "/db/data/transaction", MapUtil.map( "statements",
+                        Arrays.asList( MapUtil.map( "statement", query ) ), "parameters", params ) );
+
+                String[] parts = response.location().split( "\\/" );
+                txId = Integer.parseInt( parts[parts.length - 1] );
+
+                return new RemoteResult( response.<Map<String, Object>>content() );
+            }
+            else
+            {
+                HTTP.Response response = http.POST(
+                        "/db/data/transaction/" + txId,
+                        MapUtil.map( "statements",
+                                Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ) ) );
+                return new RemoteResult( response.<Map<String, Object>>content() );
+            }
+        }
+
+        @Override
         public void success()
         {
             success = true;
