@@ -6,7 +6,7 @@ public class RemoteDriverTest extends DriverTest
     public Driver initDb()
     {
         // TODO automate
-        // run org.neo4j.driver.ServerStarter first
+        // run org.neo4j.driver.ServerStarter before running this test
         return new RemoteDriver( "http://localhost:7474/" );
     }
 
