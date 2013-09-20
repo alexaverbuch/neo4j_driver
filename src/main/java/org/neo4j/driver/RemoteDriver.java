@@ -60,12 +60,13 @@ class RemoteDriver implements Driver
         {
             if ( txId == -1 )
             {
-                HTTP.Response response = http.POST( "/db/data/transaction", MapUtil.map( "statements",
-                        Arrays.asList( MapUtil.map( "statement", query ) ), "parameters", params ) );
+                HTTP.Response response = http.POST(
+                        "/db/data/transaction",
+                        MapUtil.map( "statements",
+                                Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ) ) );
 
                 String[] parts = response.location().split( "\\/" );
                 txId = Integer.parseInt( parts[parts.length - 1] );
-
                 return new RemoteResult( response.<Map<String, Object>>content() );
             }
             else
