@@ -6,6 +6,7 @@ import java.util.Map;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.helpers.collection.MapUtil;
 
 public class EmbeddedDriver implements Driver
 {
@@ -38,7 +39,7 @@ public class EmbeddedDriver implements Driver
         @Override
         public Result execute( String query )
         {
-            return new EmbeddedResult( engine.execute( query ) );
+            return execute( query, MapUtil.map() );
         }
 
         @Override
