@@ -19,10 +19,9 @@ public class TypeTest
         Type type = Type.BOOLEAN;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
     @Test
@@ -34,25 +33,23 @@ public class TypeTest
         Type type = Type.INTEGER;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
     @Test
     public void shouldCastLong()
     {
         // Given
-        long expectedVal = 6;
+        long expectedVal = 6l;
         Object rawVal = expectedVal;
         Type type = Type.LONG;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
     @Test
@@ -64,10 +61,9 @@ public class TypeTest
         Type type = Type.DOUBLE;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
     @Test
@@ -79,10 +75,9 @@ public class TypeTest
         Type type = Type.STRING;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
     @Test
@@ -94,23 +89,25 @@ public class TypeTest
         Type type = Type.MAP;
 
         // When
-        boolean castWorked = castValEqualsExpectedVal( type, rawVal, expectedVal );
 
         // Then
-        assertThat( castWorked, is( true ) );
+        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
     }
 
-    <T> boolean castValEqualsExpectedVal( Type<T> type, Object rawVal, T expectedVal )
+    <T> void assertThatcastValEqualsExpectedVal( Type<T> type, Object rawVal, T expectedVal )
     {
+        boolean exceptionThrown = false;
         try
         {
             T castVal = type.cast( rawVal );
-            return castVal.equals( expectedVal );
+            assertThat( castVal.equals( expectedVal ), is( true ) );
         }
         catch ( Exception e )
         {
             e.printStackTrace();
-            return false;
+            exceptionThrown = true;
         }
+        assertThat( exceptionThrown, is( false ) );
     }
+
 }
