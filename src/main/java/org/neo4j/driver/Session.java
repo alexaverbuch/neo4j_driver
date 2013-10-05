@@ -1,6 +1,6 @@
 package org.neo4j.driver;
 
-public interface Driver
+public interface Session
 {
     Transaction newTransaction();
 }

@@ -11,19 +11,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-public abstract class DriverTest
+public abstract class SessionTest
 {
     public static String DB_DIR = "tempDb";
-    public static Driver driver = null;
+    public static int dirNumber = 0;
+    public static Session driver = null;
 
-    public abstract Driver initDb();
+    public abstract Session initDb( String dir );
 
     public abstract void cleanDb();
 
     @Before
     public void before() throws IOException, InterruptedException
     {
-        driver = initDb();
+        String dir = DB_DIR + dirNumber++;
+        driver = initDb( dir );
     }
 
     @After
@@ -35,11 +37,13 @@ public abstract class DriverTest
     @Test
     public void driverShouldReadWhatItWritesWithoutParams()
     {
+        // Given
         String createQuery = "CREATE (node1:NodeType1)-[:RelType1]->(node2:NodeType2)";
-        String readQuery = "MATCH (:NodeType1)-[r]->(:NodeType2)\nRETURN type(r) AS relType";
+        String readQuery = "MATCH (:NodeType1)-[r]->(:NodeType2) RETURN type(r) AS relType, id(r) AS id";
 
         boolean exceptionThrown = false;
 
+        // When
         try (Transaction tx = driver.newTransaction())
         {
             tx.execute( createQuery );
@@ -52,15 +56,15 @@ public abstract class DriverTest
         }
         assertThat( exceptionThrown, is( false ) );
 
+        // Then
         try (Transaction tx = driver.newTransaction())
         {
             try (Result r = tx.execute( readQuery ))
             {
-                assertThat( r.hasNext(), is( true ) );
-                Map<String, Object> row1 = r.next();
-                assertThat( row1.containsKey( "relType" ), is( true ) );
-                assertThat( (String) row1.get( "relType" ), is( "RelType1" ) );
-                assertThat( r.hasNext(), is( false ) );
+                assertThat( r.next(), is( true ) );
+                assertThat( r.getValue( Type.LONG, "id" ), is( 0l ) );
+                assertThat( r.getValue( Type.STRING, "relType" ), is( "RelType1" ) );
+                assertThat( r.next(), is( false ) );
             }
             tx.success();
         }
@@ -75,6 +79,7 @@ public abstract class DriverTest
     @Test
     public void driverShouldReadWhatItWritesWithParams()
     {
+        // Given
         Map<String, Object> node1Params = new HashMap<String, Object>();
         node1Params.put( "name", "node one" );
         node1Params.put( "number", 1 );
@@ -85,10 +90,12 @@ public abstract class DriverTest
         params.put( "node1Params", node1Params );
         params.put( "node2Params", node2Params );
         String createQuery = "CREATE (node1:NodeType1 {node1Params})-[:RelType1]->(node2:NodeType2 {node2Params})";
-        String readQuery = "MATCH (node1:NodeType1)-[r]->(node2:NodeType2)\nRETURN type(r) AS relType, node1.name AS name1, node2.number AS number2";
+        String readQuery = "MATCH (node1:NodeType1)-[r]->(node2:NodeType2)\n"
+                           + "RETURN type(r) AS relType, count(r) AS count, node1.name AS name, node2.number AS number";
 
         boolean exceptionThrown = false;
 
+        // When
         try (Transaction tx = driver.newTransaction())
         {
             tx.execute( createQuery, params );
@@ -101,16 +108,17 @@ public abstract class DriverTest
         }
         assertThat( exceptionThrown, is( false ) );
 
+        // Then
         try (Transaction tx = driver.newTransaction())
         {
             try (Result r = tx.execute( readQuery ))
             {
-                assertThat( r.hasNext(), is( true ) );
-                Map<String, Object> row1 = r.next();
-                assertThat( (String) row1.get( "relType" ), is( "RelType1" ) );
-                assertThat( (String) row1.get( "name1" ), is( "node one" ) );
-                assertThat( (int) row1.get( "number2" ), is( 2 ) );
-                assertThat( r.hasNext(), is( false ) );
+                assertThat( r.next(), is( true ) );
+                assertThat( r.getValue( Type.STRING, "relType" ), is( "RelType1" ) );
+                assertThat( r.getValue( Type.INTEGER, "count" ), is( 1 ) );
+                assertThat( r.getValue( Type.STRING, "name" ), is( "node one" ) );
+                assertThat( r.getValue( Type.LONG, "number" ), is( 2l ) );
+                assertThat( r.next(), is( false ) );
             }
             tx.success();
         }
@@ -120,6 +128,16 @@ public abstract class DriverTest
             exceptionThrown = true;
         }
         assertThat( exceptionThrown, is( false ) );
+    }
+
+    public String resultToString( Result result )
+    {
+        StringBuilder resultString = new StringBuilder();
+        while ( result.next() )
+        {
+            resultString.append( result.getRow().toString() ).append( "\n" );
+        }
+        return resultString.toString();
     }
 
 }

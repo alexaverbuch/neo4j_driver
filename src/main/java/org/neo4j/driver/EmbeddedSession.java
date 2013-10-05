@@ -8,12 +8,12 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.helpers.collection.MapUtil;
 
-public class EmbeddedDriver implements Driver
+public class EmbeddedSession implements Session
 {
     private final GraphDatabaseService db;
     private final ExecutionEngine engine;
 
-    public EmbeddedDriver( GraphDatabaseService db )
+    public EmbeddedSession( GraphDatabaseService db )
     {
         this.db = db;
         this.engine = new ExecutionEngine( db );
@@ -64,10 +64,13 @@ public class EmbeddedDriver implements Driver
     static class EmbeddedResult implements Result
     {
         private final Iterator<Map<String, Object>> innerResult;
+        private final Iterable<String> columns;
+        private Map<String, Object> row = null;
 
         public EmbeddedResult( ExecutionResult innerResult )
         {
             this.innerResult = innerResult.iterator();
+            this.columns = innerResult.columns();
         }
 
         @Override
@@ -81,20 +84,35 @@ public class EmbeddedDriver implements Driver
         }
 
         @Override
-        public boolean hasNext()
+        public boolean next()
         {
-            return innerResult.hasNext();
+            if ( innerResult.hasNext() )
+            {
+                row = innerResult.next();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         @Override
-        public Map<String, Object> next()
+        public Iterable<String> columns()
         {
-            return innerResult.next();
+            return columns;
         }
 
         @Override
-        public void remove()
+        public <T> T getValue( Type<T> type, String column )
         {
+            return type.cast( row.get( column ) );
+        }
+
+        @Override
+        public Map<String, Object> getRow()
+        {
+            return row;
         }
     }
 }
