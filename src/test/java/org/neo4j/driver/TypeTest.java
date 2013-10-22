@@ -1,100 +1,54 @@
 package org.neo4j.driver;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
-import java.util.Map;
-
 import org.junit.Test;
-import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.driver.exceptions.ClientException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.*;
+import static org.neo4j.driver.exceptions.DriverExceptionType.CLIENT_TYPE_CONVERSION;
+import static org.neo4j.helpers.collection.MapUtil.map;
 
 public class TypeTest
 {
     @Test
-    public void shouldCastBoolean()
+    public void shouldCorrectlyCastHappyPath()
     {
-        // Given
-        boolean expectedVal = true;
-        Object rawVal = expectedVal;
-        Type type = Type.BOOLEAN;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
+        assertCastsCorrectly( Type.INTEGER, 6,   6 );
+        assertCastsCorrectly( Type.LONG,    6l,  6l );
+        assertCastsCorrectly( Type.DOUBLE,  6.0, 6.0 );
+        assertCastsCorrectly( Type.STRING,  "a", "a" );
+        assertCastsCorrectly( Type.MAP,     map("a", 1), map("a", 1) );
     }
 
     @Test
-    public void shouldCastInteger()
+    public void shouldGiveHelpfulErrorMessageOnSadPath() throws Exception
     {
-        // Given
-        int expectedVal = 6;
-        Object rawVal = expectedVal;
-        Type type = Type.INTEGER;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
+        assertExceptionForCastingIs( Type.INTEGER, true,
+                new ClientException( CLIENT_TYPE_CONVERSION, "Cannot convert Boolean to integer."));
+        assertExceptionForCastingIs( Type.LONG, "asd",
+                new ClientException( CLIENT_TYPE_CONVERSION, "Cannot convert String to long."));
+        assertExceptionForCastingIs( Type.DOUBLE, "asd",
+                new ClientException( CLIENT_TYPE_CONVERSION, "Cannot convert String to double."));
+        assertExceptionForCastingIs( Type.MAP, "asd",
+                new ClientException( CLIENT_TYPE_CONVERSION, "Cannot convert String to map."));
     }
 
-    @Test
-    public void shouldCastLong()
+    private void assertExceptionForCastingIs( Type<?> type, Object rawVal, Exception expected )
     {
-        // Given
-        long expectedVal = 6l;
-        Object rawVal = expectedVal;
-        Type type = Type.LONG;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
+        try
+        {
+            type.cast( rawVal );
+            fail("Expected conversion to fail");
+        }
+        catch(Exception seen)
+        {
+            assertThat(seen, equalTo(expected));
+            assertThat(seen.getMessage(), equalTo(expected.getMessage()));
+        }
     }
 
-    @Test
-    public void shouldCastDouble()
-    {
-        // Given
-        double expectedVal = 6.0;
-        Object rawVal = expectedVal;
-        Type type = Type.DOUBLE;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
-    }
-
-    @Test
-    public void shouldCastString()
-    {
-        // Given
-        String expectedVal = "6";
-        Object rawVal = expectedVal;
-        Type type = Type.STRING;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
-    }
-
-    @Test
-    public void shouldCastMap()
-    {
-        // Given
-        Map<String, Object> expectedVal = MapUtil.map( "six", 6 );
-        Object rawVal = expectedVal;
-        Type type = Type.MAP;
-
-        // When
-
-        // Then
-        assertThatcastValEqualsExpectedVal( type, rawVal, expectedVal );
-    }
-
-    <T> void assertThatcastValEqualsExpectedVal( Type<T> type, Object rawVal, T expectedVal )
+    <T> void assertCastsCorrectly( Type<T> type, Object rawVal, T expectedVal )
     {
         boolean exceptionThrown = false;
         try
