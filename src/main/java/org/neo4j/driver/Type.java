@@ -2,6 +2,11 @@ package org.neo4j.driver;
 
 import java.util.Map;
 
+import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.DriverExceptionType;
+
+import static java.lang.String.format;
+
 public abstract class Type<JAVA_TYPE>
 {
     public static final Type<Boolean> BOOLEAN = new Type<Boolean>()
@@ -9,7 +14,7 @@ public abstract class Type<JAVA_TYPE>
         @Override
         Boolean cast( Object raw )
         {
-            return (boolean) raw;
+            return (Boolean)raw;
         }
     };
     public static final Type<Integer> INTEGER = new Type<Integer>()
@@ -23,7 +28,8 @@ public abstract class Type<JAVA_TYPE>
             }
             else
             {
-                throw new RuntimeException( "Invalid type" );
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "integer" ));
             }
         }
     };
@@ -38,7 +44,8 @@ public abstract class Type<JAVA_TYPE>
             }
             else
             {
-                throw new RuntimeException( "Invalid type" );
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "long" ));
             }
         }
     };
@@ -53,7 +60,8 @@ public abstract class Type<JAVA_TYPE>
             }
             else
             {
-                throw new RuntimeException( "Invalid type" );
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "double" ));
             }
         }
     };
@@ -70,9 +78,22 @@ public abstract class Type<JAVA_TYPE>
         @Override
         Map<String, Object> cast( Object raw )
         {
-            return (Map<String, Object>) raw;
+            if ( raw instanceof Number )
+            {
+                return (Map<String, Object>) raw;
+            }
+            else
+            {
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "map" ));
+            }
         }
     };
 
     abstract JAVA_TYPE cast( Object raw );
+
+    private static String describe( Object object )
+    {
+        return object.getClass().getSimpleName();
+    }
 }

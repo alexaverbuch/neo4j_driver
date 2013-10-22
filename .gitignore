@@ -1,12 +1,18 @@
-# Package Files #
-*.class
-*.jar
+*~
+\#*
+target
+out
 .project
 .classpath
-.settings/
-.gitignore~
-*.class
-target/
-README.md~
-tempDb/
+.settings
+.externalToolBuilders/
+.scala_dependencies
+.factorypath
+*.iws
+*.ipr
+*.iml
+.idea
+.DS_Store
 .shell_history
+.mailmap
+.java-version
