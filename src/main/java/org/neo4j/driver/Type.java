@@ -14,7 +14,15 @@ public abstract class Type<JAVA_TYPE>
         @Override
         Boolean cast( Object raw )
         {
-            return (Boolean)raw;
+            if ( raw instanceof Boolean )
+            {
+                return ( (Boolean) raw );
+            }
+            else
+            {
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "Boolean" ));
+            }
         }
     };
     public static final Type<Integer> INTEGER = new Type<Integer>()
@@ -29,7 +37,7 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "integer" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Integer" ));
             }
         }
     };
@@ -45,7 +53,7 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "long" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Long" ));
             }
         }
     };
@@ -61,7 +69,7 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "double" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Double" ));
             }
         }
     };
@@ -78,14 +86,14 @@ public abstract class Type<JAVA_TYPE>
         @Override
         Map<String, Object> cast( Object raw )
         {
-            if ( raw instanceof Number )
+            if ( raw instanceof Map )
             {
                 return (Map<String, Object>) raw;
             }
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "map" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Map" ));
             }
         }
     };
