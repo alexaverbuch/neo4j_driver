@@ -1,11 +1,11 @@
 package org.neo4j.driver;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.helpers.collection.MapUtil;
 
 public class EmbeddedSession implements Session
@@ -63,7 +63,7 @@ public class EmbeddedSession implements Session
 
     static class EmbeddedResult implements Result
     {
-        private final Iterator<Map<String, Object>> innerResult;
+        private final ResourceIterator<Map<String, Object>> innerResult;
         private final Iterable<String> columns;
         private Map<String, Object> row = null;
 
@@ -76,11 +76,7 @@ public class EmbeddedSession implements Session
         @Override
         public void close()
         {
-            // Exhaust result
-            while ( innerResult.hasNext() )
-            {
-                innerResult.next();
-            }
+            innerResult.close();
         }
 
         @Override
