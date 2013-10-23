@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.neo4j.driver.internal.http.HttpSession;
 import org.neo4j.driver.testutils.ServerStarter;
 import org.neo4j.kernel.impl.util.FileUtils;
 
-public class RemoteSessionTest extends SessionTest
+public class HttpSessionIT extends SessionIT
 {
     private String dir;
     private ServerStarter serverStarter;
@@ -37,7 +38,7 @@ public class RemoteSessionTest extends SessionTest
                 // don't care
             }
         }
-        return new RemoteSession( "http://localhost:7474/" );
+        return new HttpSession( "http://localhost:7474/" );
     }
 
     @Override

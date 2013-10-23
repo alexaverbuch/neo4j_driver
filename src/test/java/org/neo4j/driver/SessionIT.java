@@ -11,7 +11,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-public abstract class SessionTest
+public abstract class SessionIT
 {
     public static String DB_DIR = "tempDb";
     public static int dirNumber = 0;
@@ -129,15 +129,4 @@ public abstract class SessionTest
         }
         assertThat( exceptionThrown, is( false ) );
     }
-
-    public String resultToString( Result result )
-    {
-        StringBuilder resultString = new StringBuilder();
-        while ( result.next() )
-        {
-            resultString.append( result.getRow().toString() ).append( "\n" );
-        }
-        return resultString.toString();
-    }
-
 }
