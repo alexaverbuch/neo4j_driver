@@ -30,17 +30,10 @@ class HttpTransaction implements Transaction
     {
         if ( txId == -1 )
         {
-            // TODO
-            System.out.println( MapUtil.map( "statements",
-                    Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ).toString() ) );
-
             HTTP.Response response = http.POST(
                     "/db/data/transaction",
                     MapUtil.map( "statements",
                             Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ) ) );
-
-            // TODO
-            System.out.println( response.rawContent() );
 
             String[] parts = response.location().split( "\\/" );
             txId = Integer.parseInt( parts[parts.length - 1] );
