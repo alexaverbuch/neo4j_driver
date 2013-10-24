@@ -1,0 +1,2 @@
+org.neo4j.driver.internal.http.HttpSessionProvider
+org.neo4j.driver.internal.file.FileSessionProvider

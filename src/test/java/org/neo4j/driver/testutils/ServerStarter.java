@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.neo4j.driver.SessionTest;
+import org.neo4j.driver.SessionIT;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
@@ -17,7 +17,7 @@ public class ServerStarter extends Thread
 {
     public static void main( String[] args ) throws IOException
     {
-        ServerStarter serverStarter = new ServerStarter( SessionTest.DB_DIR, new HashMap<String, String>() );
+        ServerStarter serverStarter = new ServerStarter( SessionIT.DB_DIR, new HashMap<String, String>() );
         serverStarter.start();
     }
 

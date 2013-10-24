@@ -12,15 +12,23 @@ public abstract class Type<JAVA_TYPE>
     public static final Type<Boolean> BOOLEAN = new Type<Boolean>()
     {
         @Override
-        Boolean cast( Object raw )
+        public Boolean cast( Object raw )
         {
-            return (Boolean)raw;
+            if ( raw instanceof Boolean )
+            {
+                return ( (Boolean) raw );
+            }
+            else
+            {
+                throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
+                        format( "Cannot convert %s to %s.", describe( raw ), "Boolean" ));
+            }
         }
     };
     public static final Type<Integer> INTEGER = new Type<Integer>()
     {
         @Override
-        Integer cast( Object raw )
+        public Integer cast( Object raw )
         {
             if ( raw instanceof Number )
             {
@@ -29,14 +37,14 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "integer" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Integer" ));
             }
         }
     };
     public static final Type<Long> LONG = new Type<Long>()
     {
         @Override
-        Long cast( Object raw )
+        public Long cast( Object raw )
         {
             if ( raw instanceof Number )
             {
@@ -45,14 +53,14 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "long" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Long" ));
             }
         }
     };
     public static final Type<Double> DOUBLE = new Type<Double>()
     {
         @Override
-        Double cast( Object raw )
+        public Double cast( Object raw )
         {
             if ( raw instanceof Number )
             {
@@ -61,14 +69,14 @@ public abstract class Type<JAVA_TYPE>
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "double" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Double" ));
             }
         }
     };
     public static final Type<String> STRING = new Type<String>()
     {
         @Override
-        String cast( Object raw )
+        public String cast( Object raw )
         {
             return (String) raw;
         }
@@ -76,21 +84,21 @@ public abstract class Type<JAVA_TYPE>
     public static final Type<Map<String, Object>> MAP = new Type<Map<String, Object>>()
     {
         @Override
-        Map<String, Object> cast( Object raw )
+        public Map<String, Object> cast( Object raw )
         {
-            if ( raw instanceof Number )
+            if ( raw instanceof Map )
             {
                 return (Map<String, Object>) raw;
             }
             else
             {
                 throw new ClientException( DriverExceptionType.CLIENT_TYPE_CONVERSION,
-                        format( "Cannot convert %s to %s.", describe( raw ), "map" ));
+                        format( "Cannot convert %s to %s.", describe( raw ), "Map" ));
             }
         }
     };
 
-    abstract JAVA_TYPE cast( Object raw );
+    public abstract JAVA_TYPE cast( Object raw );
 
     private static String describe( Object object )
     {
