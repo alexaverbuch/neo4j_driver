@@ -6,7 +6,7 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.driver.exceptions.DriverException;
-import org.neo4j.driver.internal.file.FileSession;
+import org.neo4j.driver.internal.embedded.EmbeddedSession;
 import org.neo4j.driver.spi.SessionProvider;
 import org.neo4j.test.TargetDirectory;
 
@@ -67,7 +67,7 @@ public class DriverTest
         // When
         try(Session session = Driver.newSession( "file://" + testDir.absolutePath() ))
         {
-            assertThat(session, instanceOf( FileSession.class ));
+            assertThat(session, instanceOf( EmbeddedSession.class ));
         }
 
         // Then
