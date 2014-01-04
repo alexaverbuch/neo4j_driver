@@ -3,7 +3,7 @@ package org.neo4j.driver;
 import java.io.File;
 import java.io.IOException;
 
-import org.neo4j.driver.internal.file.FileSession;
+import org.neo4j.driver.internal.embedded.EmbeddedSession;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
@@ -26,7 +26,7 @@ public class FileSessionIT extends SessionIT
             throw new RuntimeException( e.getCause() );
         }
         db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( dir ).newGraphDatabase();
-        return new FileSession( db );
+        return new EmbeddedSession( db );
     }
 
     @Override

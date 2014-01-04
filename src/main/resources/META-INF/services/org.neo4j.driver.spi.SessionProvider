@@ -1,2 +1,3 @@
 org.neo4j.driver.internal.http.HttpSessionProvider
-org.neo4j.driver.internal.file.FileSessionProvider
+org.neo4j.driver.internal.embedded.FileSessionProvider
+org.neo4j.driver.internal.embedded.MemorySessionProvider

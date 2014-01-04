@@ -1,4 +1,4 @@
-package org.neo4j.driver.internal.file;
+package org.neo4j.driver.internal.embedded;
 
 import java.util.Map;
 
@@ -7,13 +7,13 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Type;
 import org.neo4j.graphdb.ResourceIterator;
 
-class FileResult implements Result
+class EmbeddedResult implements Result
 {
     private final ResourceIterator<Map<String, Object>> innerResult;
     private final Iterable<String> columns;
     private Map<String, Object> row = null;
 
-    public FileResult( ExecutionResult innerResult )
+    public EmbeddedResult( ExecutionResult innerResult )
     {
         this.innerResult = innerResult.iterator();
         this.columns = innerResult.columns();

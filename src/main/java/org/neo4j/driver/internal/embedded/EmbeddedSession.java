@@ -1,17 +1,17 @@
-package org.neo4j.driver.internal.file;
+package org.neo4j.driver.internal.embedded;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.graphdb.GraphDatabaseService;
 
-public class FileSession implements Session
+public class EmbeddedSession implements Session
 {
-    private final FileSessionProvider.DatabaseReference dbReference;
+    private final EmbeddedDatabaseReference dbReference;
 
-    public FileSession( GraphDatabaseService db )
+    public EmbeddedSession( GraphDatabaseService db )
     {
-        this(new FileSessionProvider.DatabaseReference( db, new ExecutionEngine( db ) ));
+        this(new EmbeddedDatabaseReference( db, new ExecutionEngine( db ) ));
 
         // If the database was injected from the outside, it is up to the caller to ensure it is turned off. Therefore,
         // we increment our reference count to the database by one, representing the outside caller, ensuring we wont
@@ -19,7 +19,7 @@ public class FileSession implements Session
         dbReference.acquire();
     }
 
-    public FileSession( FileSessionProvider.DatabaseReference dbRef )
+    public EmbeddedSession( EmbeddedDatabaseReference dbRef )
     {
         this.dbReference = dbRef;
     }
@@ -27,7 +27,7 @@ public class FileSession implements Session
     @Override
     public Transaction newTransaction()
     {
-        return new FileTransaction( dbReference.db().beginTx(), dbReference.executionEngine() );
+        return new EmbeddedTransaction( dbReference.db().beginTx(), dbReference.executionEngine() );
     }
 
     @Override
