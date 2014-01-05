@@ -1,6 +1,7 @@
 package org.neo4j.driver.internal.http;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import org.neo4j.driver.Result;
@@ -11,12 +12,14 @@ import org.neo4j.test.server.HTTP;
 class HttpTransaction implements Transaction
 {
     private final HTTP.Builder http;
+    private final HttpExceptionMapper exceptionMapper;
     private int txId = -1;
     private boolean success = false;
 
-    public HttpTransaction( HTTP.Builder http )
+    public HttpTransaction( HTTP.Builder http, HttpExceptionMapper exceptionMapper )
     {
         this.http = http;
+        this.exceptionMapper = exceptionMapper;
     }
 
     @Override
@@ -28,24 +31,40 @@ class HttpTransaction implements Transaction
     @Override
     public Result execute( String query, Map<String, Object> params )
     {
+        HTTP.Response response;
         if ( txId == -1 )
         {
-            HTTP.Response response = http.POST(
+            response = http.POST(
                     "/db/data/transaction",
                     MapUtil.map( "statements",
                             Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ) ) );
 
             String[] parts = response.location().split( "\\/" );
             txId = Integer.parseInt( parts[parts.length - 1] );
-            return new HttpResult( response.<Map<String, Object>>content() );
         }
         else
         {
-            HTTP.Response response = http.POST(
+            response = http.POST(
                     "/db/data/transaction/" + txId,
                     MapUtil.map( "statements",
                             Arrays.asList( MapUtil.map( "statement", query, "parameters", params ) ) ) );
-            return new HttpResult( response.<Map<String, Object>>content() );
+        }
+
+        Map<String, Object> content = response.content();
+        assertNoErrors((Collection<Map<String, Object>>)content.get("errors"));
+
+        return new HttpResult( content );
+    }
+
+    private void assertNoErrors( Collection<Map<String, Object>> content )
+    {
+        // TODO: Don't just throw the first error, turn this into a multiple cause exception
+        // TODO: Take into account that status codes may just be warnings or info, not necessarily an actual error.
+        for ( Map<String, Object> errorContent : content )
+        {
+            String code = (String) errorContent.get( "code" );
+            String message = (String) errorContent.get( "message" );
+            throw exceptionMapper.map(code, message);
         }
     }
 

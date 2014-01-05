@@ -11,11 +11,13 @@ class EmbeddedTransaction implements Transaction
 {
     private final org.neo4j.graphdb.Transaction innerTx;
     private final ExecutionEngine engine;
+    private final EmbeddedExceptionMapper exceptionMapper;
 
-    public EmbeddedTransaction( org.neo4j.graphdb.Transaction innerTx, ExecutionEngine engine )
+    public EmbeddedTransaction( org.neo4j.graphdb.Transaction innerTx, ExecutionEngine engine, EmbeddedExceptionMapper exceptionMapper )
     {
         this.innerTx = innerTx;
         this.engine = engine;
+        this.exceptionMapper = exceptionMapper;
     }
 
     @Override
@@ -27,7 +29,14 @@ class EmbeddedTransaction implements Transaction
     @Override
     public Result execute( String query, Map<String, Object> params )
     {
-        return new EmbeddedResult( engine.execute( query, params ) );
+        try
+        {
+            return new EmbeddedResult( engine.execute( query, params ) );
+        }
+        catch(Exception e)
+        {
+            throw exceptionMapper.map( e );
+        }
     }
 
     @Override
