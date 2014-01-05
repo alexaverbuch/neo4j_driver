@@ -7,16 +7,18 @@ import org.neo4j.test.server.HTTP;
 public class HttpSession implements Session
 {
     private final HTTP.Builder http;
+    private final HttpExceptionMapper exceptionMapper;
 
-    public HttpSession( String uri )
+    public HttpSession( String uri, HttpExceptionMapper exceptionMapper )
     {
         this.http = HTTP.withBaseUri( uri.substring( 0, uri.length() - 1 ) );
+        this.exceptionMapper = exceptionMapper;
     }
 
     @Override
     public Transaction newTransaction()
     {
-        return new HttpTransaction( http );
+        return new HttpTransaction( http, exceptionMapper );
     }
 
     @Override

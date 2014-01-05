@@ -8,6 +8,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 public class EmbeddedSession implements Session
 {
     private final EmbeddedDatabaseReference dbReference;
+    private final EmbeddedExceptionMapper exceptionMapper = new EmbeddedExceptionMapper();
 
     public EmbeddedSession( GraphDatabaseService db )
     {
@@ -27,7 +28,7 @@ public class EmbeddedSession implements Session
     @Override
     public Transaction newTransaction()
     {
-        return new EmbeddedTransaction( dbReference.db().beginTx(), dbReference.executionEngine() );
+        return new EmbeddedTransaction( dbReference.db().beginTx(), dbReference.executionEngine(), exceptionMapper );
     }
 
     @Override

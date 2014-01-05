@@ -17,6 +17,6 @@ public class HttpSessionProvider implements SessionProvider
     @Override
     public Session newSession( URI uri, Map<String, String> configuration )
     {
-        return new HttpSession( uri.toASCIIString() );
+        return new HttpSession( uri.toASCIIString(), new HttpExceptionMapper() );
     }
 }

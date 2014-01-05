@@ -4,19 +4,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.neo4j.driver.compatibility.DriverCompatibilitySuite;
+import org.neo4j.driver.internal.http.HttpExceptionMapper;
 import org.neo4j.driver.internal.http.HttpSession;
 import org.neo4j.driver.testutils.ServerStarter;
 import org.neo4j.kernel.impl.util.FileUtils;
 
-public class HttpSessionIT extends SessionIT
+public class HttpDriverCompatibilityIT extends DriverCompatibilitySuite
 {
-    private String dir;
+    private String dir = "filedriver-test";
     private ServerStarter serverStarter;
 
     @Override
-    public Session initDb( String dir )
+    public Session newSession()
     {
-        this.dir = dir;
+        return new HttpSession( "http://localhost:7474/", new HttpExceptionMapper() );
+    }
+
+    @Override
+    public void beforeTest()
+    {
         try
         {
             FileUtils.deleteRecursively( new File( dir ) );
@@ -38,11 +45,10 @@ public class HttpSessionIT extends SessionIT
                 // don't care
             }
         }
-        return new HttpSession( "http://localhost:7474/" );
     }
 
     @Override
-    public void cleanDb()
+    public void afterTest()
     {
         serverStarter.stopServer();
         try
